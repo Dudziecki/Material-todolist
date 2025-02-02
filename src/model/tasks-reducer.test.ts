@@ -1,8 +1,8 @@
 import { beforeEach, expect, test } from 'vitest'
 import type {TasksState} from '../app/App.tsx'
-import {CreateTodolistAC, DeleteTodolistAC} from "./todolists-reducer.ts";
-import {v1} from "uuid";
-import {ChangeTaskStatusAC, CreateTaskAC, DeleteTaskAC, tasksReducer, UpdateTaskTitleAC} from "./tasks-reducer.ts";
+import {createTodolistAC, deleteTodolistAC} from "./todolists-reducer.ts";
+
+import {changeTaskStatusAC, createTaskAC, deleteTaskAC, tasksReducer, changeTaskTitleAC} from "./tasks-reducer.ts";
 
 let startState: TasksState = {}
 
@@ -21,7 +21,7 @@ beforeEach(() => {
     }
 })
 test('array should be created for new todolist', () => {
-    const endState = tasksReducer(startState, CreateTodolistAC('New todolist',v1()))
+    const endState = tasksReducer(startState, createTodolistAC('New todolist'))
 
     const keys = Object.keys(endState)
     const newKey = keys.find(k => k !== 'todolistId1' && k !== 'todolistId2')
@@ -33,7 +33,7 @@ test('array should be created for new todolist', () => {
     expect(endState[newKey]).toEqual([])
 })
 test('property with todolistId should be deleted', () => {
-    const endState = tasksReducer(startState, DeleteTodolistAC('todolistId2'))
+    const endState = tasksReducer(startState, deleteTodolistAC({id:'todolistId2'}))
 
     const keys = Object.keys(endState)
 
@@ -43,7 +43,7 @@ test('property with todolistId should be deleted', () => {
     expect(endState['todolistId2']).toBeUndefined()
 })
 test('correct task should be deleted', () => {
-    const endState = tasksReducer(startState, DeleteTaskAC({todolistId: 'todolistId2', taskId: '2'}))
+    const endState = tasksReducer(startState, deleteTaskAC({todolistId: 'todolistId2', taskId: '2'}))
 
     expect(endState).toEqual({
         todolistId1: [
@@ -58,9 +58,10 @@ test('correct task should be deleted', () => {
     })
 })
 test('correct task should be created at correct array', () => {
-    const endState = tasksReducer(startState, CreateTaskAC({
+    const endState = tasksReducer(startState, createTaskAC({
         todolistId: 'todolistId2',
-        title: 'juice'
+        title: 'juice',
+        isDone:false
     }))
 
     expect(endState.todolistId1.length).toBe(3)
@@ -70,12 +71,12 @@ test('correct task should be created at correct array', () => {
     expect(endState.todolistId2[0].isDone).toBe(false)
 })
 test('correct task should change its status', () => {
-    const endState = tasksReducer(startState, ChangeTaskStatusAC({todolistId: 'todolistId2', taskId: '2', isDone: false}))
+    const endState = tasksReducer(startState, changeTaskStatusAC({todolistId: 'todolistId2', taskId: '2', isDone: false}))
 
     expect(endState.todolistId1[0].isDone).toBe(false)
 
 })
 test('correct task should change its title', () => {
-    const endState=tasksReducer(startState,UpdateTaskTitleAC({todolistId: 'todolistId2',taskId:'2',title:'What to do'}))
+    const endState=tasksReducer(startState,changeTaskTitleAC({todolistId: 'todolistId2',taskId:'2',title:'What to do'}))
     expect(endState.todolistId2[1].title).toBe('What to do')
 })
