@@ -7,8 +7,8 @@ import {
     deleteTodolistAC,
     todolistsReducer,
 
-} from "./todolists-reducer";
-import { Todolist } from "../app/App.tsx";
+} from "../todolists-reducer.ts";
+import { Todolist } from "../../../../app/App.tsx";
 import {nanoid} from "@reduxjs/toolkit";
 
 let todolistId1: string;
