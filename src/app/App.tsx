@@ -1,46 +1,50 @@
-import './App.css'
-import { CssBaseline} from "@mui/material"
-import {ThemeProvider } from '@mui/material/styles'
-import {useAppSelector} from "../common/hooks/useAppSelector.ts"
+import "./App.css"
+import { Header } from "@/common/components/Header/Header"
+import { useAppDispatch, useAppSelector } from "@/common/hooks"
+import { getTheme } from "@/common/theme"
+import CssBaseline from "@mui/material/CssBaseline"
+import { ThemeProvider } from "@mui/material/styles"
+import { selectThemeMode, setIsLoggedInAC } from "@/app/app-slice.ts"
+import { ErrorSnackbar } from "@/common/components/ErrorSnackbar/ErrorSnackbar.tsx"
+import { Routing } from "@/common/routing"
+import { useEffect, useState } from "react"
+import { CircularProgress } from "@mui/material"
+import styles from "./App.module.css"
+import { useMeQuery } from "@/features/auth/api/authApi.ts"
 
-import {getTheme} from "../common/theme/theme.ts"
-import {Header} from "@/common/components/Header/Header.tsx"
-import {Main} from "@/app/Main.tsx"
-import {selectThemeMode} from "@/app/app-slice.ts";
-
-export type Todolist = {
-  id: string
-  title: string
-  filter: FilterValues
-}
-
-export type Task = {
-  id: string
-  title: string
-  isDone: boolean
-}
-
-export type FilterValues = 'all' | 'active' | 'completed'
-// Record<string, TaskItem[]>
-export type TasksState = {
-  [key:string]:Task[]
-}
-
+import { ResultCode } from "@/common/enums"
 
 export const App = () => {
-
   const themeMode = useAppSelector(selectThemeMode)
-    const theme = getTheme(themeMode)
+  const theme = getTheme(themeMode)
+  const dispatch = useAppDispatch()
+  const [isInitialized, setIsInitialized] = useState(false)
 
-  return (
-      <div className="app">
-        <ThemeProvider theme={theme}>
-          <CssBaseline />
-          <Header/>
-          <Main/>
-        </ThemeProvider>
+  const { data, isLoading } = useMeQuery()
+  // const isInitialized = useAppSelector(selectIsInitialized)
+  useEffect(() => {
+    if (isLoading) return
+    setIsInitialized(true)
+    if (data?.resultCode === ResultCode.Success) {
+      dispatch(setIsLoggedInAC({ isLoggedIn: true }))
+    }
+  }, [isLoading])
 
-
+  if (!isInitialized) {
+    return (
+      <div className={styles.circularProgressContainer}>
+        <CircularProgress size={150} thickness={3} />
       </div>
+    )
+  }
+  return (
+    <ThemeProvider theme={theme}>
+      <div className={"app"}>
+        <CssBaseline />
+        <Header />
+        <Routing />
+        <ErrorSnackbar />
+      </div>
+    </ThemeProvider>
   )
 }
