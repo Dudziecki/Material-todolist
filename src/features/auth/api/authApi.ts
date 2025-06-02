@@ -6,22 +6,22 @@ import { baseApi } from "@/app/baseApi.ts"
 
 export const authApi = baseApi.injectEndpoints({
   endpoints: (build) => ({
-    login: build.mutation<BaseResponse<LoginResponse>, Inputs>({
+    login: build.mutation<BaseResponse<LoginResponse>, Inputs >({
       query: (body) => ({
         method: "POST",
         url: "auth/login",
-        body,
-      }),
+        body
+      })
     }),
     logout: build.mutation<BaseResponse, void>({
       query: () => ({
         method: "DELETE",
-        url: "auth/login",
-      }),
+        url: "auth/login"
+      })
     }),
     me: build.query<BaseResponse<MeResponse>, void>({
-      query: () => "auth/me",
-    }),
-  }),
+      query: () => "auth/me"
+    })
+  })
 })
 export const { useMeQuery, useLoginMutation, useLogoutMutation } = authApi
